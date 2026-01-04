@@ -1,6 +1,7 @@
-# DPO-NaviLLM
+# 📊 DPO-NaviLLM
 
 Core Task: Vision-and-Language Navigation
+
 Research Problem: Generalization
 
 ## Identify the SOTA method
