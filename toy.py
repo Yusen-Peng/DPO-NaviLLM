@@ -2,7 +2,7 @@ import MatterSim
 
 if __name__ == "__main__":
 
-    rendering = True
+    rendering = False
 
     if rendering:
         sim = MatterSim.Simulator()
