@@ -1,3 +1,6 @@
 data/
 data_legacy/
 .env
+Matterport3DSimulator/
+build/
+**/__pycache__/

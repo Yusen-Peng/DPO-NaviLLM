@@ -1,0 +1,20 @@
+Traceback (most recent call last):
+  File "train.py", line 332, in <module>
+    main()
+  File "/home/wanghaoxuan/anaconda3/envs/navillm/lib/python3.8/site-packages/torch/distributed/elastic/multiprocessing/errors/__init__.py", line 348, in wrapper
+    return f(*args, **kwargs)
+  File "train.py", line 255, in main
+    val_dataloaders, val_agents = create_dataloaders(
+  File "/home/wanghaoxuan/DPO-NaviLLM/tasks/loaders.py", line 30, in create_dataloaders
+    dataset = load_dataset(task_name.lower(), args, dataset_cfg, training=training, logger=logger, source=task_name)
+  File "/home/wanghaoxuan/DPO-NaviLLM/tasks/datasets/__init__.py", line 18, in load_dataset
+    return cls(*args, **kwargs)
+  File "/home/wanghaoxuan/DPO-NaviLLM/tasks/datasets/cvdn.py", line 24, in __init__
+    super().__init__(args, config, training, logger, source)
+  File "/home/wanghaoxuan/DPO-NaviLLM/tasks/datasets/mp3d_dataset.py", line 55, in __init__
+    msg = self._load_data(config, args.data_dir)
+  File "/home/wanghaoxuan/DPO-NaviLLM/tasks/datasets/mp3d_dataset.py", line 93, in _load_data
+    self.data['cvdn'], self.gt_trajs = self.load_data(anno_file=anno_file, debug=self.debug, few_shot=self.few_shot)
+  File "/home/wanghaoxuan/DPO-NaviLLM/tasks/datasets/cvdn.py", line 41, in load_data
+    with open(str(anno_file), "r") as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/data/wanghaoxuan/data/CVDN/test_cleaned.json'

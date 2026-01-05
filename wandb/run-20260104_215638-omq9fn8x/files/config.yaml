@@ -1,0 +1,388 @@
+_wandb:
+    value:
+        cli_version: 0.23.1
+        e:
+            ojsagwpbsczcsjqxznlzxqqlauak84dd:
+                args:
+                    - --stage
+                    - multi
+                    - --mode
+                    - test
+                    - --data_dir
+                    - /data/wanghaoxuan/data
+                    - --cfg_file
+                    - configs/multi.yaml
+                    - --pretrained_model_name_or_path
+                    - /data/wanghaoxuan/data/models/Vicuna-7B
+                    - --precision
+                    - amp_bf16
+                    - --resume_from_checkpoint
+                    - /data/wanghaoxuan/model_with_pretrain.pt
+                    - --test_datasets
+                    - CVDN
+                    - --batch_size
+                    - "4"
+                    - --output_dir
+                    - build/eval
+                    - --validation_split
+                    - test
+                    - --save_pred_results
+                codePath: train.py
+                codePathLocal: train.py
+                cpu_count: 48
+                cpu_count_logical: 96
+                disk:
+                    /:
+                        total: "1876932493312"
+                        used: "1434959376384"
+                email: mingfei.han@student.uts.edu.au
+                executable: /home/wanghaoxuan/anaconda3/envs/navillm/bin/python
+                git:
+                    commit: 1ef2c365e71aa37ee4b22e8c4f1c35f05a79f03f
+                    remote: https://github.com/Yusen-Peng/DPO-NaviLLM.git
+                host: bajie
+                memory:
+                    total: "270368305152"
+                os: Linux-5.4.0-169-generic-x86_64-with-glibc2.10
+                program: train.py
+                python: CPython 3.8.15
+                root: /home/wanghaoxuan/DPO-NaviLLM
+                startedAt: "2026-01-05T05:56:38.456262Z"
+                writerId: ojsagwpbsczcsjqxznlzxqqlauak84dd
+        m: []
+        python_version: 3.8.15
+        t:
+            "1":
+                - 1
+                - 11
+                - 49
+                - 71
+                - 98
+            "2":
+                - 1
+                - 11
+                - 49
+                - 71
+                - 98
+            "3":
+                - 13
+            "4": 3.8.15
+            "5": 0.23.1
+            "6": 4.28.0
+            "12": 0.23.1
+            "13": linux-x86_64
+Dataset_CVDN_DIR:
+    value: CVDN
+Dataset_CVDN_SPLIT_test:
+    value: test_cleaned.json
+Dataset_CVDN_SPLIT_train:
+    value: train.json
+Dataset_CVDN_SPLIT_val_seen:
+    value: val_seen.json
+Dataset_CVDN_SPLIT_val_unseen:
+    value: val_unseen.json
+Dataset_EQA_ANSWER_VOCAB:
+    value: eqa_answer_vocab.json
+Dataset_EQA_DIR:
+    value: EQA_MP3D
+Dataset_EQA_SPLIT_val_unseen:
+    value: eqa_val_enc.json
+Dataset_LLaVA_DIR:
+    value: LLaVA
+Dataset_LLaVA_SPLIT_train:
+    value: detail_23k.json
+Dataset_R2R_AUG_DIR:
+    value: R2R
+Dataset_R2R_AUG_SPLIT_train:
+    value: R2R_prevalent_aug_train_enc.jsonl
+Dataset_R2R_DIR:
+    value: R2R
+Dataset_R2R_SPLIT_test:
+    value: R2R_test_enc.json
+Dataset_R2R_SPLIT_train:
+    value: FGR2R_train.json
+Dataset_R2R_SPLIT_val_seen:
+    value: R2R_val_seen_enc.json
+Dataset_R2R_SPLIT_val_unseen:
+    value: R2R_val_unseen_enc.json
+Dataset_REVERIE_AUG_DIR:
+    value: REVERIE
+Dataset_REVERIE_AUG_SPLIT_train:
+    value: REVERIE_speaker_aug_enc.jsonl
+Dataset_REVERIE_AUG_bbox_file:
+    value: BBoxes.json
+Dataset_REVERIE_DIR:
+    value: REVERIE
+Dataset_REVERIE_SPLIT_test:
+    value: REVERIE_test_enc.json
+Dataset_REVERIE_SPLIT_train:
+    value: REVERIE_train_enc.json
+Dataset_REVERIE_SPLIT_val_seen:
+    value: REVERIE_val_seen_enc.json
+Dataset_REVERIE_SPLIT_val_unseen:
+    value: REVERIE_val_unseen_enc.json
+Dataset_REVERIE_bbox_file:
+    value: BBoxes.json
+Dataset_RoomTour_DIR:
+    value: RoomTour
+Dataset_RoomTour_SPLIT_train:
+    value: p1_train_reformat.json
+Dataset_SOON_DIR:
+    value: SOON
+Dataset_SOON_SPLIT_test:
+    value: test_v2_enc.jsonl
+Dataset_SOON_SPLIT_train:
+    value: train_enc_pseudo_obj_ade30k_label.jsonl
+Dataset_SOON_SPLIT_val_seen:
+    value: val_unseen_instrs_enc_pseudo_obj_ade30k_label.jsonl
+Dataset_SOON_SPLIT_val_unseen:
+    value: val_unseen_house_enc_pseudo_obj_ade30k_label.jsonl
+Dataset_ScanQA_DIR:
+    value: ScanQA
+Dataset_ScanQA_SPLIT_test_w_obj:
+    value: ScanQA_v1.0_test_w_obj_reformat.json
+Dataset_ScanQA_SPLIT_test_wo_obj:
+    value: ScanQA_v1.0_test_wo_obj_reformat.json
+Dataset_ScanQA_SPLIT_train:
+    value: ScanQA_v1.0_train_reformat.json
+Dataset_ScanQA_SPLIT_val_unseen:
+    value: ScanQA_v1.0_val_reformat.json
+Dataset_Tour3D_DIR:
+    value: RoomTour
+Dataset_Tour3D_SPLIT_train:
+    value: p1_train_colmap_trajectory_tour3d.json
+Feature_angle_feat_size:
+    value: 4
+Feature_feature_database_coco:
+    value: eva_features/coco_EVA02-CLIP-L-14-336.hdf5
+Feature_feature_database_mp3d:
+    value: eva_features/mp3d_EVA02-CLIP-L-14-336.hdf5
+Feature_feature_database_room_tour:
+    value: eva_features/web_obj_prog_p1_EVA02-CLIP-L-14-336.hdf5.bak
+Feature_feature_database_room3d_tour:
+    value: eva_features/web_3d_obj_prog_crop_p1_EVA02-CLIP-L-14-336.hdf5
+Feature_feature_database_scan_qa:
+    value: eva_features/scanqa_EVA02-CLIP-L-14-336.hdf5
+Feature_image_feat_size:
+    value: 1024
+Feature_max_objects:
+    value: 70
+Feature_obj_feat_size:
+    value: 768
+Feature_object_database_reverie:
+    value: obj_features/reverie_obj_feat
+Feature_object_database_soon:
+    value: obj_features/soon_obj_feat
+Feature_object_feature_type:
+    value: ""
+Model_enc_full_graph:
+    value: true
+Model_expert_policy:
+    value: spl
+Model_fusion:
+    value: dynamic
+Model_graph_sprels:
+    value: true
+Model_num_l_layers:
+    value: 9
+Model_num_pano_layers:
+    value: 2
+Model_num_x_layers:
+    value: 4
+Multi_Ratio:
+    value:
+        - 10
+        - 20
+        - 5
+        - 1
+        - 5
+        - 5
+        - 5
+Multi_SOURCE:
+    value:
+        - Tour3D
+        - R2R
+        - REVERIE
+        - CVDN
+        - SOON
+        - ScanQA
+        - LLaVA
+Optim_train_max_action_len_CVDN:
+    value: 15
+Optim_train_max_action_len_EQA:
+    value: 15
+Optim_train_max_action_len_R2R:
+    value: 15
+Optim_train_max_action_len_R2R_AUG:
+    value: 15
+Optim_train_max_action_len_REVERIE:
+    value: 15
+Optim_train_max_action_len_REVERIE_AUG:
+    value: 15
+Optim_train_max_action_len_SOON:
+    value: 15
+Optim_train_max_action_len_Tour3D:
+    value: 15
+Optim_val_max_action_len_CVDN:
+    value: 30
+Optim_val_max_action_len_EQA:
+    value: 15
+Optim_val_max_action_len_R2R:
+    value: 15
+Optim_val_max_action_len_REVERIE:
+    value: 15
+Optim_val_max_action_len_SOON:
+    value: 20
+Pretrain_LOSS_COEF_R2R_AUG:
+    value: 1
+Pretrain_LOSS_COEF_REVERIE_AUG:
+    value: 1
+Pretrain_Ratio:
+    value:
+        - 10
+        - 20
+        - 5
+        - 2
+Pretrain_SOURCE:
+    value:
+        - Tour3D
+        - RoomTour
+        - ScanQA
+        - LLaVA
+angle_feat_size:
+    value: 4
+batch_size:
+    value: 4
+cfg_file:
+    value: configs/multi.yaml
+data_dir:
+    value: /data/wanghaoxuan/data
+debug:
+    value: false
+device:
+    value: cuda:0
+disable_nav:
+    value: false
+dist_backend:
+    value: nccl
+dist_url:
+    value: env://
+distributed:
+    value: false
+do_sample:
+    value: false
+enable_fgr2r:
+    value: false
+enable_og:
+    value: false
+enable_summarize:
+    value: false
+enc_full_graph:
+    value: true
+expert_policy:
+    value: spl
+feat_dropout:
+    value: 0.4
+few_shot:
+    value: null
+freeze_llama:
+    value: false
+from_scratch:
+    value: false
+fuse_obj:
+    value: false
+gen_loss_coef:
+    value: 1
+gpu:
+    value: 0
+gradient_accumulation_step:
+    value: 2
+horovod:
+    value: false
+ignoreid:
+    value: -100
+image_feat_size:
+    value: 1024
+local_rank:
+    value: 0
+lora_alpha:
+    value: 16
+lora_dropout:
+    value: 0.05
+lora_rank:
+    value: 8
+lora_target:
+    value: null
+lr:
+    value: 1e-05
+max_datapoints:
+    value: null
+max_saved_checkpoints:
+    value: 0
+mode:
+    value: test
+multi_endpoints:
+    value: 1
+no_loc_fts:
+    value: false
+no_set_device_rank:
+    value: false
+num_epochs:
+    value: 30
+num_pano_layers:
+    value: 2
+num_steps_per_epoch:
+    value: -1
+num_warmup_steps:
+    value: 0
+obj_feat_size:
+    value: 768
+obj_loss_coef:
+    value: 1
+off_batch_task:
+    value: false
+output_dir:
+    value: build/eval
+path_type:
+    value: trusted_path
+precision:
+    value: amp_bf16
+pretrained_model_name_or_path:
+    value: /data/wanghaoxuan/data/models/Vicuna-7B
+rank:
+    value: 0
+resume_from_checkpoint:
+    value: /data/wanghaoxuan/model_with_pretrain.pt
+save_ckpt_per_epochs:
+    value: 10
+save_detail_results:
+    value: false
+save_latest_states:
+    value: false
+save_pred_results:
+    value: true
+seed:
+    value: 0
+stage:
+    value: multi
+teacher_forcing_coef:
+    value: 1
+temperature:
+    value: 1
+test_datasets:
+    value:
+        - CVDN
+tour3d_nav_head:
+    value: false
+tune_token_emb:
+    value: false
+use_lora:
+    value: false
+val_batch_size:
+    value: 2
+validation_split:
+    value: test
+workers:
+    value: 0
+world_size:
+    value: 1

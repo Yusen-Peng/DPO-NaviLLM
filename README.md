@@ -11,41 +11,17 @@ Research Problem: Generalization
 - RoomTour3D [code](https://github.com/roomtour3d/roomtour3d-NaviLLM)
 - NaviLLM [code](https://github.com/zd11024/NaviLLM)
 
-<!-- ## Environment Setup
-
-create a new Conda environment:
-
-```bash
-conda create --name navillm python=3.8.16
-conda activate navillm
-```
-
-install dependencies needed by Matterport3DSimulator:
-
-```bash
-# pip stuff
-python -m pip install cmake
-python -m pip install opencv-python
-python -m pip install glm
-python -m pip install PyOpenGL
-# conda stuff
-conda install -c conda-forge -y mesalib libglvnd
-conda install -c conda-forge -y jsoncpp pkg-config
-export PKG_CONFIG_PATH="$CONDA_PREFIX/lib/pkgconfig:$CONDA_PREFIX/share/pkgconfig:$PKG_CONFIG_PATH"
-
-``` -->
-
-
-
-
-## Replicate the code [gotta be non-trivial haha]
-
+## Replicate the code
 
 activate the environment:
 
 ```bash
 conda activate navillm
-# export a bunch of nonsense path
+```
+
+export a bunch of nonsense paths:
+
+```bash
 export PYTHONPATH=$HOME/DPO-NaviLLM/Matterport3DSimulator/build:$PYTHONPATH
 export CUDA_VISIBLE_DEVICES=0
 export __EGL_VENDOR_LIBRARY_FILENAMES=/usr/share/glvnd/egl_vendor.d/10_nvidia.json
@@ -55,8 +31,17 @@ export LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$HOME/local_epoxy/lib/x86_64-linux-gnu:
 export JAVA_HOME=$jdk_path
 export PATH=$JAVA_HOME/bin:$PATH
 export CLASSPATH=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar
+```
+
+test to make sure **MatterSim** works:
+
+```bash
 python toy.py # OK: init w/ rendering disabled
 ```
+
+### replicate CVDN, SOON, R2R, REVERIE eval results
+
+
 
 
 

@@ -22,7 +22,8 @@ def random_seed(seed=0, rank=0):
 def read_args():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--data_dir', type=str, default='data', help="dataset root path")
+    # NOTE: data path updated
+    parser.add_argument('--data_dir', type=str, default='/data/wanghaoxuan/data', help="dataset root path")
     parser.add_argument('--cfg_file', type=str, default=None, help='dataset configs', required=True)
     parser.add_argument('--pretrained_model_name_or_path', default=None, type=str, required=True, help="path to tokenizer")
 
