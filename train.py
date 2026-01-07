@@ -160,6 +160,7 @@ def val_one_epoch(
         logger.info("***** validate {} split on {} task *****".format(args.validation_split, name))
         dataset = dataloaders[name].get_dataset()
         agent = agents[name]
+        # agent.validate is the core function for evaluation
         preds = agent.validate(
             name,
             args,
@@ -243,14 +244,21 @@ def main():
         wandb.config.update(flat_global_cfg)
 
     ##################### DATASET #####################
+
+
     feat_db = create_feature_db(global_cfg.Feature.feature_database, global_cfg.Feature.image_feat_size, args)
     obj_feat_db = create_object_feature_db(global_cfg.Feature.object_database, global_cfg.Feature.obj_feat_size, args)
+
+
+    
     # Initialize train dataloader
     if args.mode == "train":
         train_dataloaders, train_agents = create_dataloaders(
             args, global_cfg, logger,
             training=True, device=device_id, feat_db=feat_db, obj_feat_db=obj_feat_db, stage=args.stage
         )
+    
+
     # Initialize val dataloader
     val_dataloaders, val_agents = create_dataloaders(
         args, global_cfg, logger,

@@ -11,7 +11,6 @@ from ray.util.queue import Queue
 from torchvision import transforms
 from PIL import Image
 import math
-# sys.path.append(mp3d_path)    # please add the simulator path to yout python path. 
 import MatterSim
 import h5py
 import argparse
@@ -130,10 +129,10 @@ def main(args):
     os.makedirs(os.path.dirname(args.output_file), exist_ok=True)
 
     viewpoint_ids = []
-    with open(os.path.join(connectivity_dir, 'scans.txt')) as f:
+    with open(os.path.join(args.connectivity_dir, 'scans.txt')) as f:
         scans = [x.strip() for x in f]
     for scan in scans:
-        with open(os.path.join(connectivity_dir, '%s_connectivity.json' % scan)) as f:
+        with open(os.path.join(args.connectivity_dir, '%s_connectivity.json' % scan)) as f:
             data = json.load(f)
             viewpoint_ids.extend([(scan, x['image_id']) for x in data if x['included']])
     print('Loaded %d viewpoints' % len(viewpoint_ids))

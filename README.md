@@ -49,26 +49,24 @@ python toy.py # OK: init w/ rendering disabled
 | [NaviLLM](https://arxiv.org/pdf/2312.02010) | 6.16 | 7.90 | 29.24 | 26.26 | 59 | 60 | 35.68 | 32.33 |
 | NaviLLM* | **6.13** | **[7.85](https://eval.ai/web/challenges/challenge-page/463/leaderboard/1292)** | **28.88** | **[26.5](https://eval.ai/web/challenges/challenge-page/1275/overview)** | **58.58** | **[60](https://eval.ai/web/challenges/challenge-page/97/leaderboard)** | **35.45** | **[32.24](https://eval.ai/web/challenges/challenge-page/606/leaderboard/1683)** | 
 | [RoomTour3D](https://arxiv.org/pdf/2412.08591) | 6.33 | 7.22 | 31.7 | 27.8 | 62.4 | 62.2 | 37.4 | 36.4 |
+| RoomTour3D* | **6.24** | [6.92](https://eval.ai/web/challenges/challenge-page/463/my-submission) | **29.87** | [26.41](https://eval.ai/web/challenges/challenge-page/1275/my-submission) | **61.17** | [61](https://eval.ai/web/challenges/challenge-page/97/leaderboard/270) | **37.94** | [34.77](https://eval.ai/web/challenges/challenge-page/606/my-submission) |
 
-
-
-
-CVDN:
 
 ```bash
 bash scripts/evaluation/eval_cvdn.sh
-```
-
-R2R:
-
-```bash
 bash scripts/evaluation/eval_r2r.sh
+bash scripts/evaluation/eval_soon.sh
+bash scripts/evaluation/eval_reverie.sh
 ```
 
 
-## Propose some new ideas
-- idea #1: DPO with …?
-  - what it is:
-  - inspiration:
+<!-- ## Propose some new ideas regarding to generalization
+
+- Data level
+  - 
+  - 
+- Model level
+
 
 ## Implement a specific idea
+ -->
