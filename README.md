@@ -59,14 +59,19 @@ bash scripts/evaluation/eval_soon.sh
 bash scripts/evaluation/eval_reverie.sh
 ```
 
+## Propose some new ideas regarding to generalization
 
-<!-- ## Propose some new ideas regarding to generalization
-
-- Data level
-  - 
-  - 
-- Model level
+1. DPO-NaviLLM
+- reference model:
+  - Reference = frozen copy of current RoomTour3D/NaviLLM checkpoint
+  - Policy = trainable copy initialized from the same weights
+- preference pairs:
+  - sample two different rollouts per instruction (with gradient disabled)
+  - pick the rollout with higher SPL (Success weighted by Path Length)
+- DPO-NaviLLM objective: 
+  - ![alt text](assets/DPO_NaviLLM.png)
 
 
 ## Implement a specific idea
- -->
+
+

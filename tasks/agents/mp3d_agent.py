@@ -13,9 +13,14 @@ from collections import defaultdict
 from contextlib import nullcontext
 from models.graph_utils import GraphMap
 from typing import List
+from tools.trie import Trie
+from transformers import LlamaTokenizer
 
 def pad_tensors(tensors, lens=None, pad=0):
     """B x [T, ...]"""
+    """
+        In VLN, each sample has a different number of steps - we need padding
+    """
     if lens is None:
         lens = [t.size(0) for t in tensors]
     max_len = max(lens)
@@ -34,6 +39,9 @@ def pad_tensors(tensors, lens=None, pad=0):
 
 
 def gen_seq_masks(seq_lens, max_len=None):
+    """
+        it tells the model which time steps are real and which are just padding added for batching.
+    """
     if max_len is None:
         max_len = max(seq_lens)
 
@@ -52,6 +60,11 @@ def gen_seq_masks(seq_lens, max_len=None):
     return masks
 
 def get_results(pred_results, detailed_output=False):
+    """
+        store results as JSON format.
+            instr_id: each ID uniquely identifies one navigation task.
+            trajectory: a sequence of viewpoints in the predicted path.
+    """
     pred_output = []
     for k, v in pred_results.items():
         ret = {
@@ -80,12 +93,18 @@ def get_results(pred_results, detailed_output=False):
 class MP3DAgent(BaseAgent):
     def __init__(self, args, shortest_distances, shortest_paths):
         self.args = args
+        # This stores the actual node sequences, not just distances (from one viewpoint to another)
         self.shortest_paths = shortest_paths
+        # precomputed lookup table of graph distances from one viewpoint to another
         self.shortest_distances = shortest_distances
         # buffer
         self.scanvp_cands = {}
 
     def update_scanvp_cands(self, obs):
+        """
+            create a mapping between `viewpoint_id` and panoramic view index (0-35)
+                12 headings x 3 elevations = 36 views
+        """
         for ob in obs:
             scan = ob['scan']
             vp = ob['viewpoint']
@@ -96,31 +115,37 @@ class MP3DAgent(BaseAgent):
                 self.scanvp_cands[scanvp][cand['viewpointId']] = cand['pointId']
 
     def panorama_feature_variable(self, obs):
-        ''' Extract precomputed features into variable. '''
+        """
+            extract precomputed features into variable.
+        """
         batch_view_img_fts, batch_loc_fts, batch_nav_types = [], [], []
         batch_view_lens, batch_cand_vpids = [], []
 
         for i, ob in enumerate(obs):
             view_img_fts, view_ang_fts, nav_types, cand_vpids = [], [], [], []
-            # cand views
+            
+            # cand views (navigable space)
             used_viewidxs = set()
             for j, cc in enumerate(ob['candidate']):
                 view_img_fts.append(cc['feature'][:self.args.image_feat_size])
                 view_ang_fts.append(cc['feature'][self.args.image_feat_size:])
-                nav_types.append(1)
+                nav_types.append(1) # 1 ✅ means “this view corresponds to a possible move”
                 cand_vpids.append(cc['viewpointId'])
                 used_viewidxs.add(cc['pointId'])
-            # non cand views
+            
+            # non cand views (non-navigable space)
             view_img_fts.extend([x[:self.args.image_feat_size] for k, x \
                                  in enumerate(ob['feature']) if k not in used_viewidxs])
             view_ang_fts.extend([x[self.args.image_feat_size:] for k, x \
                                  in enumerate(ob['feature']) if k not in used_viewidxs])
-            nav_types.extend([0] * (36 - len(used_viewidxs)))
+            nav_types.extend([0] * (36 - len(used_viewidxs))) # 0 ❌ means “not a navigable direction”
+            
             # combine cand views and noncand views
             view_img_fts = np.stack(view_img_fts, 0)  # (n_views, dim_ft)
             view_ang_fts = np.stack(view_ang_fts, 0)
             view_box_fts = np.array([[1, 1, 1]] * len(view_img_fts)).astype(np.float32)
-            view_loc_fts = np.concatenate([view_ang_fts, view_box_fts], 1)
+            # location features: angle (+ dummy box) features per view
+            view_loc_fts = np.concatenate([view_ang_fts, view_box_fts], 1) 
 
             batch_view_img_fts.append(torch.from_numpy(view_img_fts))
             batch_loc_fts.append(torch.from_numpy(view_loc_fts))
@@ -133,16 +158,24 @@ class MP3DAgent(BaseAgent):
         batch_loc_fts = pad_tensors(batch_loc_fts).cuda()
         batch_nav_types = pad_sequence(batch_nav_types, batch_first=True, padding_value=0).cuda()
         batch_view_lens = torch.LongTensor(batch_view_lens).cuda()
-
+        # return {
+        #     'view_img_fts': batch_view_img_fts, 'loc_fts': batch_loc_fts,
+        #     'nav_types': batch_nav_types, 'view_lens': batch_view_lens,
+        #     'cand_vpids': batch_cand_vpids,
+        # }
         return {
-            'view_img_fts': batch_view_img_fts, 'loc_fts': batch_loc_fts,
-            'nav_types': batch_nav_types, 'view_lens': batch_view_lens,
-            'cand_vpids': batch_cand_vpids,
+            'view_img_fts': batch_view_img_fts,   # visual features for each view
+            'loc_fts': batch_loc_fts,             # angle (+ dummy box) features per view
+            'nav_types': batch_nav_types,         # 1 if view is navigable candidate else 0
+            'view_lens': batch_view_lens,         # number of views (almost always 36)
+            'cand_vpids': batch_cand_vpids,       # candidate viewpoint IDs (only for nav_types==1 views)
         }
 
     def panorama_feature_variable_object(self, obs):
         ''' Extract precomputed features into variable. '''
-        has_obj = 'obj_img_fts' in obs[0]
+        
+        # if the observation includes object detections / object features, we’ll include them
+        has_obj = 'obj_img_fts' in obs[0] 
 
         batch_view_img_fts, batch_obj_img_fts, batch_loc_fts, batch_nav_types = [], [], [], []
         batch_view_lens, batch_obj_lens, batch_obj_loc_fts = [], [], []
@@ -178,8 +211,11 @@ class MP3DAgent(BaseAgent):
 
             # object
             if has_obj:
+                # object location features: angle + box features per object
                 batch_obj_loc_fts.append(torch.from_numpy(np.concatenate([ob['obj_ang_fts'], ob['obj_box_fts']], 1)))
+                # object ids
                 batch_objids.append(ob['obj_ids'])
+                # object features
                 batch_obj_lens.append(len(ob['obj_img_fts']))
                 batch_obj_img_fts.append(torch.from_numpy(ob['obj_img_fts']))
 
@@ -229,6 +265,8 @@ class MP3DAgent(BaseAgent):
             batch_view_img_fts.append(torch.from_numpy(view_img_fts))
             batch_loc_fts.append(torch.from_numpy(view_loc_fts))
             batch_view_lens.append(len(view_img_fts))
+            
+            # “For these gen tasks, treat the eye-level 360° sweep as the main context.”
             batch_nav_types.append(torch.LongTensor([1]*12+[0]*24))
             batch_cand_vpids.append([None]*36)
 
@@ -248,8 +286,10 @@ class MP3DAgent(BaseAgent):
         return ret
 
     def get_pos_fts(self, cnt_vp, cand_vps, cur_heading, cur_elevation, angle_feat_size=4):
-        # dim=7 (sin(heading), cos(heading), sin(elevation), cos(elevation),
-        #  line_dist, shortest_dist, shortest_step)
+        """
+            compute relative position features from the current viewpoint to each candidate viewpoint
+                includes: in(heading), cos(heading), sin(elevation), cos(elevation)
+        """
         rel_angles, rel_dists = [], []
         for vp in cand_vps:
             rel_heading, rel_elevation, rel_dist = calculate_vp_rel_pos_fts(
@@ -262,6 +302,9 @@ class MP3DAgent(BaseAgent):
         return rel_ang_fts
 
     def nav_vp_variable(self, obs, gmaps, pano_embeds, pano_masks, cand_vpids, view_lens, nav_types):
+        """
+            mental model: turn “what I see right now” (36-view panorama) into “what I can do next” (STOP + candidate moves)
+        """
         batch_size = len(obs)
 
         # add [stop] token
@@ -284,24 +327,29 @@ class MP3DAgent(BaseAgent):
             )
             # add [stop] token at beginning
             vp_pos_fts = np.zeros((vp_img_embeds.size(1), 14), dtype=np.float32)
-            vp_pos_fts[:, :7] = cur_start_pos_fts
-            vp_pos_fts[1:len(cur_cand_pos_fts)+1, 7:] = cur_cand_pos_fts
+
+            # builds a 14-dim position feature for every action token
+            vp_pos_fts[:, :7] = cur_start_pos_fts # where is this action relative to where I started the episode?
+            vp_pos_fts[1:len(cur_cand_pos_fts)+1, 7:] = cur_cand_pos_fts # where is this action relative to where I’m facing right now?
             batch_vp_pos_fts.append(torch.from_numpy(vp_pos_fts))
 
         batch_vp_pos_fts = pad_tensors(batch_vp_pos_fts).cuda()
-
-        vp_nav_masks = torch.cat([torch.ones(batch_size, 1).bool().cuda(), nav_types == 1], 1)
+        
+        # the model scores 37 tokens, but only 1+K of them are `legal` actions.
+        vp_nav_masks = torch.cat([torch.ones(batch_size, 1).bool().cuda(), nav_types == 1], 1) # nav_types == 1 navigable actions + STOP
 
         return {
-            'vp_img_embeds': vp_img_embeds,
-            'pano_masks': pano_masks,
-            'vp_pos_fts': batch_vp_pos_fts,
-            'vp_nav_masks': vp_nav_masks,
-            'vp_cand_vpids': [[None]+x for x in cand_vpids],
+            'vp_img_embeds': vp_img_embeds, # [STOP] + panorama embeddings
+            'pano_masks': pano_masks, #[STOP] + mask for valid pano tokens (STOP is always “valid”)
+            'vp_pos_fts': batch_vp_pos_fts, # position features for each action token
+            'vp_nav_masks': vp_nav_masks, # mask for valid navigation actions
+            'vp_cand_vpids': [[None]+x for x in cand_vpids], # candidate viewpoint ids with [STOP] token
         }
 
-
     def nav_gmap_variable(self, obs, gmaps):
+        """
+            mental model: 
+        """
         # [stop] + gmap_vpids
         batch_size = len(obs)
 
@@ -310,13 +358,17 @@ class MP3DAgent(BaseAgent):
         batch_gmap_pair_dists, batch_gmap_visited_masks = [], []
         batch_no_vp_left = []
         for i, gmap in enumerate(gmaps):
+            gmap: GraphMap = gmap # type hint
             visited_vpids, unvisited_vpids = [], []
             for k in gmap.node_positions.keys():
                 if gmap.graph.visited(k):
                     visited_vpids.append(k)
                 else:
                     unvisited_vpids.append(k)
-            batch_no_vp_left.append(len(unvisited_vpids) == 0)
+            # a boolean flag variable indicating if there are no unvisited viewpoints left
+            batch_no_vp_left.append(len(unvisited_vpids) == 0) 
+
+            # we can either encode the full graph (visited + unvisited) OR only the unvisited nodes
             if self.args.enc_full_graph:
                 gmap_vpids = [None] + visited_vpids + unvisited_vpids
                 gmap_visited_masks = [0] + [1] * len(visited_vpids) + [0] * len(unvisited_vpids)
@@ -324,6 +376,8 @@ class MP3DAgent(BaseAgent):
                 gmap_vpids = [None] + unvisited_vpids
                 gmap_visited_masks = [0] * len(gmap_vpids)
 
+            # gmap_step_ids tells the model when each viewpoint/node was visited during the episode.
+            # basically it’s a `temporal index` over the graph (memory-ish)
             gmap_step_ids = [gmap.node_step_ids.get(vp, 0) for vp in gmap_vpids]
             gmap_img_embeds = [gmap.get_node_embed(vp) for vp in gmap_vpids[1:]]
             gmap_img_embeds = torch.stack(
@@ -335,6 +389,8 @@ class MP3DAgent(BaseAgent):
             )
 
             gmap_pair_dists = np.zeros((len(gmap_vpids), len(gmap_vpids)), dtype=np.float32)
+            
+            # the model gets a full pairwise distance matrix encoding the graph structure
             for i in range(1, len(gmap_vpids)):
                 for j in range(i+1, len(gmap_vpids)):
                     gmap_pair_dists[i, j] = gmap_pair_dists[j, i] = \
@@ -373,7 +429,9 @@ class MP3DAgent(BaseAgent):
     def teacher_action_r4r(
         self, obs, vpids, ended, visited_masks=None, imitation_learning=False, t=None, traj=None
     ):
-        """R4R is not the shortest path. The goal location can be visited nodes.
+        """
+            R4R is not the shortest path. The goal location can be visited nodes.
+            which option should the agent take next (or STOP)?
         """
         a = np.zeros(len(obs), dtype=np.int64)
         for i, ob in enumerate(obs):
@@ -456,6 +514,9 @@ class MP3DAgent(BaseAgent):
 
 
     def teacher_object(self, obs):
+        """
+            the teacher / label generator for the `object grounding` subtask
+        """
         targets = np.zeros(len(obs), dtype=np.int64)
         for i, ob in enumerate(obs):
             i_vp = ob['viewpoint']
@@ -474,17 +535,19 @@ class MP3DAgent(BaseAgent):
 
     def make_equiv_action(self, a_t, gmaps, obs, traj=None, env=None):
         """
-        Interface between Panoramic view and Egocentric view
-        It will convert the action panoramic view action a_t to equivalent egocentric view actions for the simulator
+            convert the action panoramic view action a_t to equivalent egocentric view actions for the simulator.
+            essentially a "translator" between the model and the simulator
         """
         for i, ob in enumerate(obs):
             action = a_t[i]
-            if action is not None:            # None is the <stop> action
+            if action is not None:            # NOTE: None is the <stop> action
                 traj[i]['path'].append(gmaps[i].graph.path(ob['viewpoint'], action))
                 if len(traj[i]['path'][-1]) == 1:
                     prev_vp = traj[i]['path'][-2][-1]
                 else:
                     prev_vp = traj[i]['path'][-1][-2]
+                
+                # mapping from model's panoramic view index to heading/elevation angles
                 viewidx = self.scanvp_cands['%s_%s'%(ob['scan'], prev_vp)][action]
                 heading = (viewidx % 12) * math.radians(30)
                 elevation = (viewidx // 12 - 1) * math.radians(30)
@@ -508,6 +571,7 @@ class MP3DAgent(BaseAgent):
         loss_coef = dataset_cfg.LOSS_COEF.get(name, 1.)
         if args.stage=='pretrain' or step%2==0:
             #################### imitation learning ####################
+            # teacher forcing: always execute teacher actions in the env
             loss, _ = self.rollout(
                 args, name, config.Optim, batch,
                 model=model, criterion=criterion, dataset=dataset,
@@ -517,13 +581,13 @@ class MP3DAgent(BaseAgent):
 
         else:
             #################### dagger training ####################
+            # roll out student, label with teacher
             loss, _ = self.rollout(
                 args, name, config.Optim, batch,
                 model=model, criterion=criterion, dataset=dataset,
                 feedback="sample", train_ml=loss_coef,
                 entropy_metric=entropy_metric, instr_pred_metric=instr_pred_metric
             )
-
         return loss * args.gradient_accumulation_step
 
 
@@ -606,6 +670,7 @@ class MP3DAgent(BaseAgent):
         validate=False,
         **kwargs
     ):
+        """Run the agent in the environment for up to T steps, while optionally training."""
         """
         :param args:
         :param name: task name
