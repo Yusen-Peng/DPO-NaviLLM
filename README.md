@@ -84,8 +84,11 @@ bash scripts/evaluation/eval_reverie.sh
 - planning with contrastive learning objective: 
   - ![alt text](assets/planning_with_contrastive_learning.png)
 
+3. inter-layer contrastive decoding for NaviLLM
+- navigation logits after passing full (L) layers
+- navigation logits after passing intermediate (m) layers (early exit)
+- ![alt text](assets/ICD.png)
 
-3. NaviLLM
 
 
 ## Implement a specific idea
