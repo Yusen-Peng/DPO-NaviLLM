@@ -72,6 +72,22 @@ bash scripts/evaluation/eval_reverie.sh
   - ![alt text](assets/DPO_NaviLLM.png)
 
 
+2. planning with contrastive learning on NaviLLM
+- training pairs:
+  - sample two different rollouts per instruction
+  - high SPL -> positive, low SPL -> negative
+- current state h(t): 
+  - use the navigation **CLS token embedding** at step t (t < max_action_len)
+  - sample a few t (2~4) per trajectory
+- future state h(t+k):
+  - sample k from a set of values (like {2, 3, 5})
+- planning with contrastive learning objective: 
+  - ![alt text](assets/planning_with_contrastive_learning.png)
+
+
+3. NaviLLM
+
+
 ## Implement a specific idea
 
 
