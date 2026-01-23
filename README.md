@@ -1,9 +1,5 @@
 # 📊 DPO-NaviLLM
 
-Core Task: Vision-and-Language Navigation
-
-Research Problem: Generalization
-
 ## Identify the SOTA method
 
 - RoomTour3D (RoomTour3D: Geometry-Aware Video-Instruction Tuning for Embodied Navigation) is the current SOTA from CVPR 2025
@@ -31,12 +27,6 @@ export LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$HOME/local_epoxy/lib/x86_64-linux-gnu:
 export JAVA_HOME=$jdk_path
 export PATH=$JAVA_HOME/bin:$PATH
 export CLASSPATH=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar
-```
-
-test to make sure **MatterSim** works:
-
-```bash
-python toy.py # OK: init w/ rendering disabled
 ```
 
 ### replicate CVDN, SOON, R2R, REVERIE eval results
@@ -72,7 +62,7 @@ bash scripts/evaluation/eval_reverie.sh
   - ![alt text](assets/DPO_NaviLLM.png)
 
 
-2. planning with contrastive learning on NaviLLM
+<!-- 2. planning with contrastive learning on NaviLLM
 - training pairs:
   - sample two different rollouts per instruction
   - high SPL -> positive, low SPL -> negative
@@ -82,15 +72,19 @@ bash scripts/evaluation/eval_reverie.sh
 - future state h(t+k):
   - sample k from a set of values (like {2, 3, 5})
 - planning with contrastive learning objective: 
-  - ![alt text](assets/planning_with_contrastive_learning.png)
+  - ![alt text](assets/planning_with_contrastive_learning.png) -->
 
-3. inter-layer contrastive decoding for NaviLLM
+2. inter-layer contrastive decoding for NaviLLM
 - navigation logits after passing full (L) layers
 - navigation logits after passing intermediate (m) layers (early exit)
 - ![alt text](assets/ICD.png)
+
+3. SPIN-NaviLLM
+- Suppress the attention heads that are “image-inattentive" during inference
+- ![alt text](assets/SPIN.png)
 
 
 
 ## Implement a specific idea
 
-
+TBD

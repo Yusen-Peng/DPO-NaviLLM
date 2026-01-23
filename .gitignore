@@ -1,6 +1,6 @@
 data/
 data_legacy/
 .env
-Matterport3DSimulator/
+Matterport3DSimulator/*
 **/__pycache__/
 wandb/
